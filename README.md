@@ -8,9 +8,9 @@ A simple **single-cycle RISC-V processor** implemented using **Verilog HDL** and
 
 This project implements a basic RISC-V processor based on the **RV32I instruction format**.
 
-The processor is designed as a simple single-cycle datapath and contains the main components required to fetch, decode, execute, access memory, and write results back to the register file.
+The processor is designed as a simple single-cycle datapath and includes the main components required to fetch, decode, execute, access memory, and write results back to the register file.
 
-The project also includes a Verilog testbench used to verify the processor operation through multiple instruction tests.
+A dedicated Verilog testbench was also developed to verify the processor using multiple instruction cases and to monitor both the final results and internal processor signals.
 
 ---
 
@@ -72,7 +72,7 @@ The processor consists of the following main modules:
 
 ## ⚙️ Supported Instructions
 
-The current implementation was tested using the following instructions:
+The processor includes support for the following instructions:
 
 ### Immediate Instructions
 
@@ -133,14 +133,15 @@ RISC-V-Processor/
 ├── tb/
 │   └── tb_top_risc_v.v
 │
-├── RISC-V_Verification_Documentation.pdf
-│    
+├── documentation/
+│   └── RISC-V_Verification_Documentation.pdf
 │
 ├── screenshots/
-│   ├── screenshots/blockdigram.png
-│   └── screenshots/transcript.png
-│   └── screenshots/waveform_full.png
-│   └── screenshots/waveform_transcript.png
+│   ├── blockdigram.png
+│   ├── transcript.png
+│   ├── waveform_full.png
+│   └── waveform_transcript.png
+│
 └── README.md
 ```
 
@@ -154,10 +155,11 @@ The testbench:
 
 - Generates the clock signal.
 - Applies reset to the processor.
-- Runs the instruction sequence stored in instruction memory.
-- Monitors the processor internal signals.
+- Executes the instruction sequence stored in instruction memory.
+- Monitors internal processor signals.
 - Checks expected register values.
-- Reports `PASS` or `FAIL` for individual tests.
+- Reports `PASS` or `FAIL` for individual verification cases.
+- Allows different instruction operations to be checked during simulation.
 
 ### Example Verification Sequence
 
@@ -180,18 +182,51 @@ SW   x1, 4(x0)
 LW   x6, 4(x0)
 ```
 
-Expected results include:
+### Expected Results
+
+For the arithmetic and logical instructions:
 
 ```text
 x1 = 5
 x2 = 3
-x3 = 8
-x4 = 2
-x5 = 1
-x6 = 7
-x7 = 6
-x8 = 0
+
+ADD  → x3 = 8
+SUB  → x4 = 2
+AND  → x5 = 1
+OR   → x6 = 7
+XOR  → x7 = 6
+SLT  → x8 = 0
 ```
+
+---
+
+## 🔍 Bug Detection During Verification
+
+One of the purposes of the testbench was not only to verify correct cases, but also to detect incorrect behavior.
+
+During the verification process, the `XOR` instruction was intentionally observed through a test case where the expected result was:
+
+```text
+Expected = 6
+```
+
+while the simulation initially produced:
+
+```text
+Actual = 0
+```
+
+The testbench therefore reported:
+
+```text
+FAIL: expected = 6, actual = 0
+```
+
+This demonstrates that the verification environment was able to detect an incorrect ALU result instead of simply assuming that the design was correct.
+
+The failure was then used as a debugging case to investigate the ALU/control path and verify the processor implementation.
+
+> **Note:** The `FAIL` result shown in the verification output represents a detected test case during debugging and is intentionally documented as part of the verification process.
 
 ---
 
@@ -214,16 +249,21 @@ The waveform was used to observe the internal processor signals, including:
 - Zero flag
 - Data memory signals
 
-![RISC-V Waveform](screenshots/waveform_transcript.png)
-![RISC-V Waveform](screenshots/waveform_full.png).
-![RISC-V Waveform](screenshots/transcript.png).
-![RISC-V Waveform](screenshots/blockdigram.png).
+![RISC-V Waveform](screenshots/waveform_full.png)
+
+### Detailed Waveform / Transcript
+
+![RISC-V Waveform and Transcript](screenshots/waveform_transcript.png)
 
 ### Simulation Transcript
 
 The simulation transcript shows the processor state at different simulation times and displays the verification results.
 
 ![Simulation Transcript](screenshots/transcript.png)
+
+### Processor Block Diagram
+
+![RISC-V Processor Block Diagram](screenshots/blockdigram.png)
 
 ---
 
@@ -266,6 +306,8 @@ x7
 x8
 ```
 
+These signals make it possible to observe the processor operation at different stages of instruction execution.
+
 ---
 
 ## 🛠️ Tools Used
@@ -280,17 +322,18 @@ x8
 
 A detailed project report is available here:
 
-📄 [RISC-V Verification Documentation](RISC-V_Verification_Documentation.pdf)
+📄 [RISC-V Verification Documentation](documentation/RISC-V_Verification_Documentation.pdf)
 
 The documentation includes:
 
 - Processor architecture
 - Module descriptions
-- Testbench
+- Testbench design
 - Verification methodology
 - Simulation results
 - Waveform analysis
-- Detected issues and verification results
+- Detected issues and debugging
+- Verification results
 
 ---
 
@@ -300,11 +343,12 @@ The main objectives of this project are:
 
 1. Implement a basic RISC-V processor using Verilog HDL.
 2. Connect the processor datapath and control unit.
-3. Implement basic arithmetic and logical operations.
+3. Implement arithmetic and logical operations.
 4. Implement load and store memory operations.
-5. Develop a verification testbench.
-6. Monitor internal processor signals using simulation waveforms.
-7. Verify the correctness of processor operations using expected results.
+5. Develop a reusable verification testbench.
+6. Monitor internal processor signals using ModelSim waveforms.
+7. Detect incorrect behavior through expected-versus-actual comparisons.
+8. Document the verification and debugging process.
 
 ---
 
@@ -312,4 +356,4 @@ The main objectives of this project are:
 
 **Ahmed Elbendary Ramadan Elbendary**
 
-RISC-V Processor Design & Verification Project 
+**RISC-V Processor Design & Verification Project**
